@@ -1,0 +1,4 @@
+fastapi # bc it's better than flask
+python-dotenv # so we don't mess with windows env vars
+twilio # voice calls
+uvicorn # serve the api
