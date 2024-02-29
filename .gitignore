@@ -2,3 +2,22 @@
 *env/
 .env
 __pycache__
+
+# react stuff
+node_modules/
+build/
+dist/
+
+package-lock.json
+
+# VSCODE
+.vscode/
+
+# cache
+.DS_Store
+.cache/
+.eslintcache
+npm-debug.log*
+yarn.lock
+
+

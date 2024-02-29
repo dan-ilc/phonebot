@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function SayItApp() {
   const [enteredPhoneNumber, setEnteredPhoneNumber] = useState('');
@@ -14,6 +15,8 @@ function SayItApp() {
     }
     const apiURL = `http://localhost:8000/voicecall?destination_number=${encodeURIComponent(enteredPhoneNumber)}&message=${encodeURIComponent(messageContent)}`;
     console.log('API URL:', apiURL);
+    // TODO: Catch the errors here instead of logging to console
+    // TODO2: catch the case where the API is down
     const response = await fetch(apiURL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -36,37 +39,37 @@ function SayItApp() {
   }, [apiResponse]);
 
   return (
-    <div className="SayItApp" style={{ backgroundColor: '#673AB7', padding: '20px' }}>
-      <h1>Say It!</h1>
+    <div className="container mt-5">
+      <h1 className="display-4 mb-4">Call the doctor!</h1>
       <form onSubmit={handleSayItClick}>
-        <label htmlFor="phone-number">Phone Number:</label>
-        <input
-          type="tel"
-          id="phone-number"
-          value={enteredPhoneNumber}
-          onChange={(event) => setEnteredPhoneNumber(event.target.value)}
-          required
-        />
-        <br />
-        <label htmlFor="message">Message:</label>
-        <textarea
-          id="message"
-          value={messageContent}
-          onChange={(event) => setMessageContent(event.target.value)}
-          required
-        />
-        <br />
-        <button
-          type="submit"
-          style={{ backgroundColor: '#800080', color: 'white', padding: '10px 20px', fontSize: '18px' }}
-        >
+        <div className="mb-3">
+          <label htmlFor="phone-number" className="form-label">Phone Number:</label>
+          <input
+            type="tel"
+            className="form-control"
+            id="phone-number"
+            value={enteredPhoneNumber}
+            onChange={(event) => setEnteredPhoneNumber(event.target.value)}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="message" className="form-label">Message:</label>
+          <textarea
+            className="form-control"
+            id="message"
+            value={messageContent}
+            onChange={(event) => setMessageContent(event.target.value)}
+            required
+          />
+        </div>
+        <button type="submit" className="btn btn-primary">
           Say it!
         </button>
       </form>
-      {apiResponse === 200 && <p style={{ color: 'green' }}>Success!</p>}
+      {apiResponse === 200 && <p className="text-success mt-3">Success!</p>}
       {apiResponse !== 200 && apiResponse !== null && (
-        <p style={{ color: 'red' }}>Error: {apiResponse.message}</p>
-        
+        <p className="text-danger mt-3">Error: {apiResponse.message}</p>
       )}
     </div>
   );
