@@ -14,7 +14,7 @@ function SayItApp() {
       return;
     }
     // hardcoded port
-    const apiURL = `http://127.0.0.1:80/voicecall?destination_number=${encodeURIComponent(enteredPhoneNumber)}&message=${encodeURIComponent(messageContent)}`;
+    const apiURL = `http://127.0.0.1:8000/voicecall?destination_number=${encodeURIComponent(enteredPhoneNumber)}&message=${encodeURIComponent(messageContent)}`;
     console.log('API URL:', apiURL);
     // TODO: Catch the errors here instead of logging to console
     // TODO2: catch the case where the API is down

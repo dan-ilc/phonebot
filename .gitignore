@@ -19,5 +19,5 @@ package-lock.json
 .eslintcache
 npm-debug.log*
 yarn.lock
-
+frontend/
 
