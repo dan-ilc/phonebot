@@ -11,7 +11,7 @@ load_dotenv('.env')
 ACCOUNT_SID = os.environ["ACCOUNT_SID"]
 AUTH_TOKEN = os.environ["AUTH_TOKEN"]
 TWILIO_NUMBER = os.environ["TWILIO_NUMBER"]
-DEBUG_MODE = True
+DEBUG_MODE = False
 client = Client(ACCOUNT_SID, AUTH_TOKEN)
 
 # print(call.sid)

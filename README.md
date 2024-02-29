@@ -63,3 +63,8 @@ Oop getting hit by CORS. Fastapi can handle that
 Ok now need a bit better error handling for the 400 validations
 
 trying to make more stylish, adding bootstrap. Not sure how to add to package list, a `sudo npm install bootstrap` sorta worked.
+
+ok so the answer is to cd into the dir and run `sudo npm install` to update the package list
+
+tested with the full end to end. Now to deploy to cloud run.
+
