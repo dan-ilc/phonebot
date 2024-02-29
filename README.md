@@ -107,3 +107,7 @@ and check
 ```
 great now we need cloud run working. Container still not built. Restarted docker in windows. seems to have fixed things.
 
+uggh i hate cors so much 
+
+ok using an npm dev server is too much pain. Building
+

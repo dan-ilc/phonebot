@@ -5,6 +5,7 @@ from twilio.twiml.voice_response import VoiceResponse
 from typing import Optional
 import re
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv # use this to save us wrestling with windows env var handling
 load_dotenv('.env')
 # crash out if either of these are missing
@@ -85,7 +86,7 @@ def make_phone_call(number:str, message:str)->str:
     return call.sid
 
 
-app = FastAPI(docs_url="/")
+app = FastAPI(docs_url="/docs")
 
 # Endpoint to get the version of the API
 @app.get("/version")
@@ -128,8 +129,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount the "static" directory to serve static files (e.g., your React build)
+app.mount("/", StaticFiles(directory="frontend", html=True), name="static")
+
 # Run the application using Uvicorn
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=80)

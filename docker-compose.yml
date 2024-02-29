@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  phonebot:
+    image: phonebot:latest
+    command: sleep infinity
+    environment:
+      - ACCOUNT_SID=${ACCOUNT_SID}
+      - AUTH_TOKEN=${AUTH_TOKEN}
+      - TWILIO_NUMBER=${TWILIO_NUMBER}
+    ports:
+      - "3000:3000"
+      - "127.0.0.1:8000:8000"
+      - "0.0.0.0:80:80"
+    volumes:
+      - ./twilio_client.py:/app/twilio_client.py
