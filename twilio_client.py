@@ -11,7 +11,7 @@ load_dotenv('.env')
 ACCOUNT_SID = os.environ["ACCOUNT_SID"]
 AUTH_TOKEN = os.environ["AUTH_TOKEN"]
 TWILIO_NUMBER = os.environ["TWILIO_NUMBER"]
-
+DEBUG_MODE = True
 client = Client(ACCOUNT_SID, AUTH_TOKEN)
 
 # print(call.sid)
@@ -73,15 +73,15 @@ def make_phone_call(number:str, message:str)->str:
     """
     twiml = VoiceResponse()
     twiml.say(message, voice="alice")
-
-    print(f"Pretending to make a call with {twiml.to_xml()} to {number} from {TWILIO_NUMBER}")
-    return "pretend call"
+    if DEBUG_MODE:
+        print(f"Pretending to make a call with {twiml.to_xml()} to {number} from {TWILIO_NUMBER}")
+        return "pretend call"
     # Make the Twilio call
-    # call = client.calls.create(
-    #     twiml=twiml.to_xml(),
-    #     to=number,
-    #     from_=TWILIO_NUMBER
-    # )
+    call = client.calls.create(
+        twiml=twiml.to_xml(),
+        to=number,
+        from_=TWILIO_NUMBER
+    )
     return call.sid
 
 
