@@ -2,4 +2,5 @@
 cd webapp
 npm run build
 cd ..
-docker build . -t phonebot
+docker build . -t gcr.io/phonebot-123/phonebot:latest .
+
