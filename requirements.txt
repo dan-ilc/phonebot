@@ -1,4 +1,5 @@
 fastapi # bc it's better than flask
 python-dotenv # so we don't mess with windows env vars
+pytest # because we're not terrible people
 twilio # voice calls
 uvicorn # serve the api

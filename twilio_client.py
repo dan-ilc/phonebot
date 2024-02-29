@@ -1,59 +1,88 @@
-# Download the helper library from https://www.twilio.com/docs/python/install
+from fastapi import FastAPI, Query, HTTPException
 import os
 from twilio.rest import Client
+from twilio.twiml.voice_response import VoiceResponse
+from typing import Optional
+import re
+from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv # use this to save us wrestling with windows env var handling
 load_dotenv('.env')
 # crash out if either of these are missing
-account_sid = os.environ["ACCOUNT_SID"]
-auth_token = os.environ["AUTH_TOKEN"]
+ACCOUNT_SID = os.environ["ACCOUNT_SID"]
+AUTH_TOKEN = os.environ["AUTH_TOKEN"]
+TWILIO_NUMBER = os.environ["TWILIO_NUMBER"]
 
-client = Client(account_sid, auth_token)
+client = Client(ACCOUNT_SID, AUTH_TOKEN)
 
 # print(call.sid)
-from fastapi import FastAPI, Query, HTTPException
-from typing import Optional
-import re
-def is_valid_uk_phone_number(phone_number:str):
-  """
-  Checks if a phone number string adheres to a basic format.
+def is_valid_uk_phone_number(phone_number:str)->bool:
+    """
+    Checks if a phone number string adheres to a basic format.
 
-  Args:
-      phone_number: The phone number string to validate.
+    Args:
+        phone_number: The phone number string to validate.
 
-  Returns:
-      True if the format seems valid, False otherwise.
-  """
+    Returns:
+        True if the format seems valid, False otherwise.
+    """
 
-  if phone_number.startswith("+44"):
-    phone_number = "0"+phone_number[3:]
-    print(phone_number)
+    if phone_number.startswith("+44"):
+        phone_number = "0"+phone_number[3:]
+        print(phone_number)
 
-  # Remove non-numeric characters and whitespace characters
-  phone_number = re.sub(r"[^\d]", "", phone_number)
+    # Remove non-numeric characters and whitespace characters
+    phone_number = re.sub(r"[^\d]", "", phone_number)
 
 
-  # Check for total length (11 digits)
-  if len(phone_number) != 11:
-    print("wrong length")
-    print(phone_number)
-    return False
-  
-  # Check for valid starting digits (02 or 07, or country code +44)
-  if not phone_number.startswith(("02", "07")):
-    print("wrong start")
-    print(phone_number)
-    return False
+    # Check for total length (11 digits)
+    if len(phone_number) != 11:
+        print("wrong length")
+        print(phone_number)
+        return False
+    
+    # Check for valid starting digits (02 or 07, or country code +44)
+    if not phone_number.startswith(("02", "07")):
+        print("wrong start")
+        print(phone_number)
+        return False
 
-  # Check for valid subscriber number format (4-digit district code + 4-digit local number)
-  return bool(re.match(r"^\d{4}\d{4}$", phone_number[3:]))
+    # Check for valid subscriber number format (4-digit district code + 4-digit local number)
+    return bool(re.match(r"^\d{4}\d{4}$", phone_number[3:]))
 
-def is_valid_message(message:str):
-   """
-   Check that the message is ok. Later could add safety measures like 
-   profanity filters, etc.
-   """
-   return len(message) < 10000 # dummy check to ensure it's not too long
+def is_valid_message(message:str)->bool:
+    """
+    Check that the message is ok. Later could add safety measures like 
+    profanity filters, etc.
+    """
+    MAX_MSG_LEN = 10000 # arbitrary max
+    if len(message) > MAX_MSG_LEN: # dummy check to ensure it's not too long
+        return False
+    
+    # add more things here
+    PROFANITY_FILTER_LIST = ["LTN", "ELON", "MUSK"]
+    for word in PROFANITY_FILTER_LIST:
+        if word in message.upper():
+            return False
+    # we survived.
+    return True
 
+def make_phone_call(number:str, message:str)->str:
+    """
+    Make a phone call using the twilio API.
+    Could add phone number and message validation here instead.
+    """
+    twiml = VoiceResponse()
+    twiml.say(message, voice="alice")
+
+    print(f"Pretending to make a call with {twiml.to_xml()} to {number} from {TWILIO_NUMBER}")
+    return "pretend call"
+    # Make the Twilio call
+    # call = client.calls.create(
+    #     twiml=twiml.to_xml(),
+    #     to=number,
+    #     from_=TWILIO_NUMBER
+    # )
+    return call.sid
 
 
 app = FastAPI(docs_url="/")
@@ -67,9 +96,9 @@ def get_version():
     return {"version": "1.0.0"}
 
 # Endpoint to make a call with destination_number and message parameters
-@app.post("/call")
+@app.post("/voicecall")
 def make_call(
-    destination_number: str = Query(..., description="The destination phone number"),
+    destination_number: str = Query(..., description="The destination phone number (must be verified already)"),
     message: str = Query(..., description="The message to be sent"),
 ):
     """
@@ -85,14 +114,19 @@ def make_call(
 
     if not is_valid_message(message):
        raise HTTPException(status_code=400, detail="Not a valid message.")
-    # call = client.calls.create(
-    #     url="http://demo.twilio.com/docs/voice.xml",
-    #     to="+447840222962",
-    #     from_="+447723427639"
-    # )
-    return {"destination_number": destination_number, "message": message}
+    message_header = "This is an automated message from your friendly neighbourhood call robot.\n"
+    message = message_header + message
+    sid = make_phone_call(destination_number, message)
+    return {"message": f"call created with sid {sid}"}
 
-
+# Enable CORS for all origins, allow all methods, allow all headers
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Run the application using Uvicorn
 if __name__ == "__main__":
